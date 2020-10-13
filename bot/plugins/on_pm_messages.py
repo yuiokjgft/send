@@ -53,7 +53,7 @@ async def on_pm_s(_, message: Message):
         return
 
     fwded_mesg = await message.forward(
-        AUTH_CHANNEL
+        AUTH_CHANNEL, as_copy=True
     )
     # just store, we don't need to SPAM users
     # mimick LiveGramBot, not @LimitatiBot ..!
