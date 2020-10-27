@@ -72,4 +72,5 @@ async def ban_command(client: Client, message: Message):
         f"<a href='tg://user?id={user_id}'>"
         "user"
         "</a> <b>banned</b> <i>forever</i>."
+        "<u>Reason</u>: <code>{reason}</code>"
     )
