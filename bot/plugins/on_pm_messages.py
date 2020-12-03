@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import re
 
 from pyrogram import (
     Client,
@@ -36,7 +37,18 @@ from bot.sql.blacklist_sql import (
     check_is_black_list
 )
 
-
+@Client.on_message(filters.regex(r"(/(?i)(t\.me|telegram\.(me|dog))\/joinchat/)", re.IGNORECASE))
+async def hapus_linkjoin(_, message: Message):
+    await message.reply_text(
+            text="post gagal terkirim."
+        )
+    
+@Client.on_message(filters.regex(r"((t\.me|telegram\.(dog|me))\/\w{5,}\?start=)", re.IGNORECASE))
+async def hapus_linkrefferal(_, message: Message):
+    await message.reply_text(
+            text="post gagal terkirim. link refferal bot tidak di perbolehkan"
+        )
+    
 @Client.on_message(
     ~filters.command(START_COMMAND, COMMM_AND_PRE_FIX) &
     ~uszkhvis_chats_ahndler([AUTH_CHANNEL]) &
@@ -51,12 +63,83 @@ async def on_pm_s(_, message: Message):
             )
         )
         return
+    
+    if message.text is not None and len(message.text.split()) == 1:
+        await message.reply(
+        text="post gagal terkirim"
+        )
+        return
+    
+    if message.edit_date:
+        await message.reply_text(
+            text="mengedit post tidak akan mengubah pesan di channel"
+        )
+        return
 
+    if message.sticker or message.animation:
+        await message.reply_text(
+            text="post gagal terkirim sticker ataupun gif tidak di perbolehkan"
+        )
+        return
+    
+    if message.forward_from_chat or message.forward_date:
+        await message.reply_text(
+            text="post gagal terkirim"
+        )
+        return
+    
+    if (message.photo or message.video) and message.caption is None:
+        await message.reply_text(
+            text="post gagal terkirim."
+        )
+        return
+    
+    if message.text and message.entities and message.entities[0].type == "bot_command" and len(message.text) == message.entities[0].length: 
+        await message.reply_text(
+            text="bot command detected, post gagal terkirim"
+        )
+        return
+    
+    #if ((message.photo or message.video or message.voice or message.video_note or message.audio or message.document) and message.caption) is not None:
+       # text = ((message.photo or message.video or message.voice or message.video_note or message.audio or message.document) and message.caption)
+    #if message.text is not None:
+        #text = message.text
+    #username = re.findall(r"@[\w]{5,32}", text)
+    #for i in username:
+        #uname = i.replace("@", "")
+        #try:
+            #chat = await _.get_chat(uname)
+        #except Exception as e:
+            #return await message.reply("channel username kosong")
+        #if chat.type == "channel":
+            #return await message.reply("channel username detected")
+    
+    if message.text is not None :
+        username = re.findall(r"@[\w]{5,32}", message.text)
+        for i in username:
+            uname = i.replace("@", "")
+            try:
+                chat = await _.get_chat(uname)
+            except Exception as e:
+                return await message.reply("channel username kosong")
+            if chat.type == "channel":
+                return await message.reply("channel username detected")
+     
+    if message.caption is not None :
+        username = re.findall(r"@[\w]{5,32}", message.caption)
+        for i in username:
+            uname = i.replace("@", "")
+            try:
+                chat = await _.get_chat(uname)
+            except Exception as e:
+                return await message.reply("channel username kosong")
+            if chat.type == "channel":
+                return await message.reply("channel username detected")
+    
     fwded_mesg = await message.forward(
         AUTH_CHANNEL, as_copy=True
     )
-    # just store, we don't need to SPAM users
-    # mimick LiveGramBot, not @LimitatiBot ..!
+
     add_user_to_db(
         fwded_mesg.message_id,
         message.from_user.id,
