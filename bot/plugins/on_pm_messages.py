@@ -88,7 +88,7 @@ async def on_pm_s(_, message: Message):
         )
         return
     
-    if (message.photo or message.video) and message.caption is None:
+    if message.photo or message.video:
         await message.reply_text(
             text="post gagal terkirim."
         )
@@ -100,8 +100,8 @@ async def on_pm_s(_, message: Message):
         )
         return
     
-    #if ((message.photo or message.video or message.voice or message.video_note or message.audio or message.document) and message.caption) is not None:
-       # text = ((message.photo or message.video or message.voice or message.video_note or message.audio or message.document) and message.caption)
+    #if message.photo or message.video or message.voice or message.video_note or message.audio or message.document:
+       # text = message.photo or message.video or message.voice or message.video_note or message.audio or message.document
     #if message.text is not None:
         #text = message.text
     #username = re.findall(r"@[\w]{5,32}", text)
